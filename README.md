@@ -1920,3 +1920,789 @@ const tools = require('hollaex-tools-lib');
 			*/
 		});
 	```
+
+#### Wallet functions
+
+- `getUserBalanceByKitId(userid)`
+  - Gets user balance by kit id
+  - Returns promise with user balance
+	```javascript
+	tools.wallet.getUserBalanceByKitId(99)
+		.then((data) => {
+			/*
+				{
+					updated_at: '2020-12-18T05:00:30.306Z',
+					xht_balance: 1,
+					xht_available: 1,
+					usdt_balance: 1,
+					usdt_available: 1,
+					btc_balance: 1,
+					btc_available: 1,
+					...
+				}
+			*/
+		});
+	```
+- `getUserBalanceByNetworkId(networkId)`
+  - Gets user balance by networkd id
+  - Returns promise with user balance
+	```javascript
+	tools.wallet.getUserBalanceByNetworkId(1)
+		.then((data) => {
+			/*
+				{
+					updated_at: '2020-12-18T05:00:30.306Z',
+					xht_balance: 1,
+					xht_available: 1,
+					usdt_balance: 1,
+					usdt_available: 1,
+					btc_balance: 1,
+					btc_available: 1,
+					...
+				}
+			*/
+		});
+	```
+- `getKitBalance()`
+  - Gets exchange's total balance
+  - Returns promise with balance
+	```javascript
+	tools.wallet.getKitBalance()
+		.then((data) => {
+			/*
+				{
+					updated_at: '2020-12-18T05:00:30.306Z',
+					xht_balance: 1,
+					xht_available: 1,
+					usdt_balance: 1,
+					usdt_available: 1,
+					btc_balance: 1,
+					btc_available: 1,
+					...
+				}
+			*/
+		});
+	```
+- `sendRequestWithdrawalEmail(userId, address, amount, currency [, otpCode, ip, domain])`
+  - Send a user a withdrawal confirmation email
+  - Returns promise resolve after sending email
+	```javascript
+	tools.wallet.sendRequestWithdrawalEmail(99, 'crypto_address', 0.1, 'xht')
+		.then((data) => {
+			//continue
+		});
+	```
+- `validateWithdrawalToken(token)`
+  - Validate withdrawal token
+  - Returns promise with withdrawal data
+	```javascript
+	tools.wallet.validateWithdrawalToken('token')
+		.then((data) => {
+			/*
+				{
+					"id": 1,
+					"txid": "string",
+					"currency": "xht",
+					"amount": 0.0001,
+					"type": "withdrawal",
+					"is_confirmed": true,
+					"fee": 0.000001,
+					"status": "pending"
+					"user_id": 1
+					"updated_at": "2019-10-07T01:44:57.968Z",
+					"created_at": "2019-10-07T01:44:57.968Z"
+				}
+			*/
+		});
+	```
+- `performWithdrawal(userId, address, currency, amount, fee)`
+  - Perform a withdrawal on the network
+  - Will check tier level for withdrawal limit
+  - Returns promise with withdrawal data
+	```javascript
+	tools.wallet.performWithdrawal(99, 'address', 'xht', 1, 0.1)
+		.then((data) => {
+			// data = Withdrawal data
+		});
+	```
+- `cancelUserWithdrawalByKitId(userId, withdrawalId)`
+  - Cancel a withdrawal for a user by kit id
+  - Returns promise with canceled withdrawal data
+	```javascript
+	tools.wallet.cancelUserWithdrawalByKitId(99, 'txid')
+		.then((data) => {
+			// data = Withdrawal data
+		});
+	```
+- `cancelUserWithdrawalByNetworkId(userId, withdrawalId)`
+  - Cancel a withdrawal for a user by network id
+  - Returns promise with canceled withdrawal data
+	```javascript
+	tools.wallet.cancelUserWithdrawalByNetworkId(1, 'txid')
+		.then((data) => {
+			// data = Withdrawal data
+		});
+	```
+- `checkTransaction(currency, txid, address [, isTestnet = false])`
+  - Checks status of a transaction and updates on network
+  - Returns promise with transaction
+	```javascript
+	tools.wallet.checkTransaction('xht', 'txid', 'address')
+		.then((data) => {
+			// data = Transaction data
+		});
+	```
+- `transferAssetByKitIds(senderId, receiverId, currency, amount [, description = 'Admin Transfer'])`
+  - Transfers an asset between users by their kit ids
+  - Returns promise resolve after transfer
+	```javascript
+	tools.wallet.transferAssetByKitIds(99, 12, 'xht', 1)
+		.then((data) => {
+			//continue
+		});
+	```
+- `transferAssetByNetworkIds(senderNetworkId, receiverNetworkId, currency, amount [, description = 'Admin Transfer])`
+  - Transfers an asset between users by their network ids
+  - Returns promise resolve after transfer
+	```javascript
+	tools.wallet.transferAssetByNetworkIds(1, 2, 'xht', 1)
+		.then((data) => {
+			//continue
+		});
+	```
+
+#### Security functions
+
+- `issueToken(kitId, networkId, email, ip [, isAdmin = false, isSupport = false, isSupervisor = false, isKYC = false, isCommunicator = false])`
+  - Creates a JWT token that expires in one day for a user
+  - `isAdmin` = Set to true if user is an admin
+  - `isSupport` = Set to true if user is support
+  - `isSupervisor` = Set to true if user is a supervisor
+  - `isKYC` = Set to true if user is kyc
+  - `isCommunicator` = Set to true if user is a communicator
+  - Returns created token
+	```javascript
+	tools.security.verifyNetworkHmacToken(req);
+	/*
+		{
+			sub: {
+				id: 99,
+				email: 'person@bitholla.com',
+				networkId: 1
+			},
+			scopes: [ 'user', 'hmac', 'admin' ],
+			ip: '172.0.0.1',
+			iss: 'bitholla',
+			iat: 1608272965,
+			exp: 1608359365
+		}
+	*/
+	```
+- `verifyBearerTokenMiddleware(req, authOrSecDef, token, cb [, isSocket = false])`
+  - Middleware function used to verify a bearer token and the user's role
+  - Used for swagger and websocket authentication
+  - `req` = request object
+  - `authOrSecDef` = not used in this function, pass `null`
+  - `token` = Bearer token being passed
+  - `cb` = Callback function called after authentication
+  - `isSocket` = Set to true if verifying for a websocket connection
+  - Sets `req.auth` as user values
+	```javascript
+	tools.security.verifyBearerTokenMiddleware(info.req, null, bearerToken, (err) => {
+		if (err) {
+			return next(false, 403, err.message);
+		} else {
+			return next(true);
+		}
+	}, false);
+
+	/*
+		req.auth = {
+			sub: {
+				id: 99,
+				email: 'person@bitholla.com',
+				networkId: 1
+			},
+			scopes: [ 'user', 'hmac', 'admin' ],
+			ip: '172.0.0.1',
+			iss: 'bitholla',
+			iat: 1608272965,
+			exp: 1608359365
+		}
+	*/
+	```
+- `verifyBearerTokenPromise(token, ip, scopes = ['user'])`
+  - Validates bearer token
+  - `token` = Bearer token
+  - `ip` = Ip address of origin
+  - `scopes` = User role scopes that are valid in an array
+  - Returns promise with decoded token if successful
+	```javascript
+	tools.security.verifyBearerTokenPromise('Bearer TOKEN', '127.0.0.1', ['user', 'admin'])
+		.then((data) => {
+			/*
+				{
+					sub: {
+						id: 99,
+						email: 'person@bitholla.com',
+						networkId: 1
+					},
+					scopes: [ 'user', 'hmac', 'admin' ],
+					ip: '172.0.0.1',
+					iss: 'bitholla',
+					iat: 1608272965,
+					exp: 1608359365
+				}
+			*/
+		})
+	```
+- `verifyBearerTokenExpressMiddleware(scopes = ['user'])`
+  - Validates bearer token for express endpoints as a middleware function
+  - `scopes` = User role scopes that are valid in an array
+  - Sets `req.auth` as user values and continues on
+	```javascript
+	app.post('/', [tools.security.verifyBearerTokenExpressMiddleware(['admin'])], (req, res) => {
+		/*
+			req.auth = {
+				sub: {
+					id: 99,
+					email: 'person@bitholla.com',
+					networkId: 1
+				}
+			}
+		*/
+	});
+	```
+- `verifyHmacTokenMiddleware(req, definition, apiKey, cb [, isSocket = false])`
+  - Middleware function used to verify hmac values and the user's role
+  - Used for swagger and websocket authentication
+  - `req` = request object
+  - `definition` = not used in this function, pass `null`
+  - `apiKey` = HMAC token being passed
+  - `cb` = Callback function called after authentication
+  - `isSocket` = Set to true if verifying for a websocket connection
+  - Sets `req.auth` as user values
+	```javascript
+	tools.security.verifyHmacTokenMiddleware(info.req, null, hmacKey, (err) => {
+		if (err) {
+			return next(false, 403, err.message);
+		} else {
+			return next(true);
+		}
+	}, false);
+
+	/*
+		req.auth = {
+			sub: {
+				id: 99,
+				email: 'person@bitholla.com',
+				networkId: 1
+			}
+		}
+	*/
+	```
+- `verifyHmacTokenPromise(apiKey, apiSignature, apiExpires, method, originalUrl, body, scopes = ['user'])`
+  - Validates hmac authentication
+  - `apiKey` = HMAC API key given in request
+  - `apiSignature` = Generated HMAC signature given in request
+  - `apiExpires` = Expiration time for signature given in request
+  - `method` = Endpoint method
+  - `originalUrl` = URL path
+  - `body` = Body given in request
+  - Returns promise with decoded user values
+	```javascript
+	tools.security.verifyHmacTokenPromise(
+		'apiKey',
+		'apiSignature',
+		'apiExpires',
+		'POST',
+		'/v2/order',
+		{
+			symbol: 'xht-usdt',
+			side: 'buy',
+			size: 1,
+			type: 'limit',
+			price: 1
+		}
+	)
+		.then((data) => {
+			/*
+				{
+					sub: {
+						id: 99,
+						email: 'person@bitholla.com',
+						networkId: 1
+					}
+				}
+			*/
+		})
+	```
+- `getUserKitHmacTokens(userid)`
+  - Gets user's hmac tokens (secrets are masked)
+  - `req` = request object
+  - Returns promise with tokens on success
+	```javascript
+	tools.security.getUserKitHmacTokens(99)
+		.then((data) => {
+			/*
+				{
+					count: 1,
+					data: [
+						{
+							id: 1,
+							user_id: 99
+							name: ''
+							apiKey: '',
+							apiSecret: '*********'
+						}
+					]
+				}
+			*/
+		})
+	```
+- `createUserKitHmacToken(userId, otpCode, ip, name)`
+  - Creates an hmac token for a user. Requires OTP to be enabled
+  - Returns promise with token
+	```javascript
+	tools.security.createUserKitHmacToken(99, 'otpCode', '127.0.0.1', 'testToken')
+		.then((data) => {
+			/*
+				{
+					id: 1,
+					name: 'testToken'
+					user_id: 99,
+					apiKey: '',
+					apiSecret: '*********'
+				}
+			*/
+		})
+	```
+- `deleteUserKitHmacToken(userId, otpCode, tokenId)`
+  - Delete a user's hmac token. Requres otp to be enabled
+  - Returns promise with deleted token
+	```javascript
+	tools.security.deleteUserKitHmacToken(99, 'otpCode', 1)
+		.then((data) => {
+			/*
+				{
+					id: 1,
+					name: 'testToken'
+					user_id: 99,
+					apiKey: '',
+					apiSecret: '*********'
+				}
+			*/
+		})
+	```
+- `verifyNetworkHmacToken(req)`
+  - Validates requests coming from the network
+  - `req` = request object
+  - Returns promise resolve on success
+	```javascript
+	tools.security.verifyNetworkHmacToken(req)
+		.then((data) => {
+			// continue
+		})
+	```
+- `validatePassword(userPassword, inputPassword)`
+  - Validates a password using bcrypt
+  - `userPassword` = User's encrypted password
+  - `inputPassword` = Given password
+  - Returns boolean value
+	```javascript
+	tools.security.validatePassword('encryptedPassword', 'password');
+	```
+- `resetUserPassword(resetPasswordCode, newPassword)`
+  - Resets a user's password in case they forgot
+  - Returns promise with user data
+	```javascript
+	tools.security.resetUserPassword('code', 'newPassword')
+		.then((data) => {
+			// data = User data
+		});
+	```
+- `changeUserPassword(email, oldPassword, newPassword)`
+  - Change a user's password
+  - Returns promise with user data
+	```javascript
+	tools.security.changeUserPassword('person@bitholla.com', 'oldPassword', 'newPassword')
+		.then((data) => {
+			// data = User data
+		});
+	```
+- `sendResetPasswordCode(email, captcha, ip, domain)`
+  - Send a reset password code to a user's email
+  - Returns promise resolve on success
+	```javascript
+	tools.security.sendResetPasswordCode('person@bitholla.com', 'captchaCode', '127.0.0.1', 'https://google.com')
+		.then((data) => {
+			// continue
+		});
+	```
+- `checkCaptcha(captcha, remoteip)`
+  - Checks captcha given. If captcha is disabled, will resolve
+  - Returns promise resolve on success
+	```javascript
+	tools.security.checkCaptcha('captchaCode', '127.0.0.1')
+		.then((data) => {
+			// continue
+		});
+	```
+- `checkOtp(userId)`
+  - Checks if user has otp enabled. If so, throws an error.
+  - Returns promise with either sequelize object with otp code if it already exists or nothing if it doesn't
+	```javascript
+	tools.security.checkOtp(99)
+		.then((data) => {
+			/*
+				If OTP code for user that is not use exists
+				{
+					id: 1,
+					secret: 'otpSecret'
+				}
+
+				Else nothing
+			*/
+		});
+	```
+- `createOtp(userId)`
+  - Creates an otp secret for a user
+  - Returns promise with secret
+	```javascript
+	tools.security.checkOtp(99)
+		.then((data) => {
+			// data = OTP secret for user
+		});
+	```
+- `verifyOtpBeforeAction(userId, otpCode)`
+  - Verifies an otp code for a user
+  - Returns promise with true value if otp is valid. Throws error if not.
+	```javascript
+	tools.security.verifyOtpBeforeAction(99, 'otpCode')
+		.then((data) => {
+			// data = true
+		});
+	```
+- `setActiveUserOtp(userId)`
+  - Set user OTP enabled and set OTP code as used
+  - Returns promise with user values
+	```javascript
+	tools.security.setActiveUserOtp(99)
+		.then((data) => {
+			// data = User data
+		});
+	```
+- `userHasOtpEnabled(userId)`
+  - Check to see if user otp is enabled
+  - Returns promise with boolean value
+	```javascript
+	tools.security.userHasOtpEnabled(99)
+		.then((data) => {
+			// data = true / false
+		});
+	```
+- `checkUserOtpActive(userId, otpCode)`
+  - Check to see if user otp is enabled and if otp code is valid
+  - Used for functionalities where otp code must be enabled
+  - Returns promise resolve on success
+	```javascript
+	tools.security.checkUserOtpActive(99, 'otpCode')
+		.then((data) => {
+			// continue
+		});
+	```
+- `userIsDeactivated(deactivatedUsers = {}, userid)`
+  - Check to see if user is deactivated (frozen)
+  - Returns boolean value
+	```javascript
+	tools.security.userIsDeactivated(frozenUsers, 99);
+	```
+- `checkAdminIp(whiteListedIps = [], ip)`
+  - Check to see if admin's ip is valid
+  - Returns boolean value
+	```javascript
+	tools.security.checkAdminIp(adminWhitelistIps, '127.0.0.1');
+	```
+
+#### Tier functions
+
+- `findTier(level)`
+  - Get tier data for a level
+  - Returns promise with tier data
+	```javascript
+	tools.tier.findTier(1)
+		.then((data) => {
+			/*
+				{
+					"id": 1,
+					"name": "tester",
+					"icon": "",
+					"description": "tester level",
+					"deposit_limit": 0,
+					"withdrawal_limit": 0,
+					"fees": {
+						"maker": {
+							"xht-usdt": 0.2
+						},
+						"taker": {
+							"xht-usdt": 0.2
+						}
+					},
+					"note": "",
+					"created_at": "2020-12-10T05:18:19.931Z",
+					"updated_at": "2020-12-10T06:06:02.358Z"
+				}
+			*/
+		});
+	```
+- `createTier(level, name, icon, description, deposit_limit, withdrawal_limit, fees = {} [, note = ''])`
+  - Create a new tier level
+  - `level` = new level
+  - `name` = name of new tier
+  - `icon` = url of tier icon
+  - `description` = description of tier
+  - `deposit_limit` = deposit limit for tier level in native currency, `-1` for disabled, `0` for unlimited
+  - `withdrawal_limit` = withdrawal limit for tier level in native currency, `-1` for disabled, `0` for unlimited
+  - `fees` = Maker and Taker fees associated with trading for tier level. `default` will be applied for all symbols. You can also pass a symbol as a key to specify a fee
+  - `note` = note for tier
+  - Returns promise with tier data
+	```javascript
+	tools.tier.createTier(
+		4,
+		'fourth tier',
+		'url',
+		'tier that is fourth',
+		0,
+		0,
+		{
+			maker: {
+				default: 0.1,
+				'xht-usdt': 0
+			},
+			taker: {
+				default: 0.1,
+				'xht-usdt': 0
+			}
+		},
+		'note'
+	)
+		.then((data) => {
+			/*
+				{
+					"id": 4,
+					"name": "fourth tier",
+					"icon": "url",
+					"description": "tier that is fourth",
+					"deposit_limit": 0,
+					"withdrawal_limit": 0,
+					"fees": {
+						"maker": {
+							"default": 0.1
+							"xht-usdt": 0
+						},
+						"taker": {
+							"default": 0.1
+							"xht-usdt": 0
+						}
+					},
+					"note": "note",
+					"created_at": "2020-12-10T05:18:19.931Z",
+					"updated_at": "2020-12-10T06:06:02.358Z"
+				}
+			*/
+		});
+	```
+- `updateTier(level, updateData = { name, icon, note, description })`
+  - Update a tier level
+  - `level` = level to update
+  - `name` = name of new tier
+  - `icon` = url of tier icon
+  - `description` = description of tier
+  - `note` = Note for tier
+  - Returns promise with tier data
+	```javascript
+	tools.tier.updateTier(
+		4,
+		{
+			name: 'hi'
+		}
+	)
+		.then((data) => {
+			/*
+				{
+					"id": 4,
+					"name": "hi",
+					"icon": "url",
+					"description": "tier that is fourth",
+					"deposit_limit": 0,
+					"withdrawal_limit": 0,
+					"fees": {
+						"maker": {
+							"default": 0.1
+							"xht-usdt": 0
+						},
+						"taker": {
+							"default": 0.1
+							"xht-usdt": 0
+						}
+					},
+					"note": "note",
+					"created_at": "2020-12-10T05:18:19.931Z",
+					"updated_at": "2020-12-10T06:06:02.358Z"
+				}
+			*/
+		});
+	```
+- `updatePairFees(pair, fees = { level: {} })`
+  - Update pair fees
+  - `pair` = Pair to update
+  - `fees` = an object with tier levels as keys and fee objects as values
+  - Returns promise with array of all updated tiers
+	```javascript
+	tools.tier.updatePairFees(
+		'xht-usdt',
+		{
+			'1': {
+				maker: 0,
+				taker: 0
+			},
+			'3': {
+				maker: 0.1,
+				taker: 0.1
+			}
+		}
+	)
+		.then((data) => {
+			/*
+				{
+					[
+						{...},
+						{...}
+					]
+				}
+			*/
+		});
+	```
+- `updateTiersLimits(limits = { level: {} })`
+  - Update tiers deposit and withdrawal limits
+  - `limits` = an object with the levels to update as keys and new limits as objects
+  - Returns promise with array of all updated tiers
+	```javascript
+	tools.tier.updateTiersLimits(
+		{
+			'1': {
+				deposit_limit: 0,
+				withdrawal_limit: 0
+			},
+			'3': {
+				deposit_limit: 0.1,
+				withdrawal_limit: 0.1
+			}
+		}
+	)
+		.then((data) => {
+			/*
+				{
+					[
+						{...},
+						{...}
+					]
+				}
+			*/
+		});
+	```
+
+#### Database functions
+
+- These functions are basically Sequelize functionalities
+
+- `getModel(table)`
+  - Get sequelize db model
+  - Returns sequelize DB model
+	```javascript
+	tools.database.getModel('user')
+		.then((data) => {
+			// User model
+		});
+	```
+- `create(table, query = {}, options = {})`
+  - Create instance of model
+  - Returns promise with sequelize db model
+	```javascript
+	tools.database.create('user'. { id: 1, email: 'hello', password: 'password' })
+		.then((data) => {
+			// data
+		});
+	```
+- `destroy(table, query = {}, options = {})`
+  - Destroy instance of model
+  - Returns promise with sequelize object
+	```javascript
+	tools.database.destroy('user'. { where: { id: 1 }})
+		.then((data) => {
+			// data
+		});
+	```
+- `update(table, query = {}, options = {})`
+  - Update instance of model
+  - Returns promise with sequelize object
+	```javascript
+	tools.database.update('user'. { where: { id: 1 } })
+		.then((data) => {
+			// data
+		});
+	```
+- `findOne(table, query = {})`
+  - Get an instance of model
+  - Returns promise with sequelize object
+	```javascript
+	tools.database.findOne('user'. { where: { id: 1 } })
+		.then((data) => {
+			// data
+		});
+	```
+- `findAll(table, query = {})`
+  - Get all instance of model
+  - Returns promise with sequelize object
+	```javascript
+	tools.database.findAll('user'. { where: { otp_enabled: true } })
+		.then((data) => {
+			// data
+		});
+	```
+- `findAndCountAll(table, query = {})`
+  - Get all instance of model with count
+  - Returns promise with sequelize object
+	```javascript
+	tools.database.findAndCountAll('user'. { where: { otp_enabled: true } })
+		.then((data) => {
+			// data
+		});
+	```
+- `findAndCountAllWithRows(table, query = {})`
+  - Get all instance of model with count and data
+  - Returns promise with sequelize object
+	```javascript
+	tools.database.findAndCountAllWithRows('user'. { where: { otp_enabled: true } })
+		.then((data) => {
+			/*
+				{
+					count: 1,
+					data: []
+				}
+			*/
+		});
+	```
+- Redis
+  - Client
+  	```javascript
+	tools.database.client;
+	```
+  - Publisher
+  	```javascript
+	tools.database.publisher;
+	```
+  - Subscriber
+  	```javascript
+	tools.database.subscriber;
+	```
