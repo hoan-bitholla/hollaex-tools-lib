@@ -674,3 +674,757 @@ const tools = require('hollaex-tools-lib');
 			*/
 		});
 	```
+
+#### User functions
+
+- `signUpUser(email, password, [opts = { referral: null }])`
+  - Signup new user using bitHolla's signup flow
+  - Will send email to user asking for verification
+  - Returns promise with sequelize object of user data
+	```javascript
+	tools.user.signUpUser('newuser@bitholla.com', 'password', { referral: 'code' })
+		.then((data) => {
+			/*
+				data = User Data
+			*/
+		});
+	```
+- `verifyUser(email, code)`
+  - Verify new user to allow access to exchange
+  - Code is the verification code sent via email to user after signup
+  - Will create the verified user on HollaEx Network
+  - Returns promise with sequelize object of user data
+	```javascript
+	tools.user.verifyUser('newuser@bitholla.com', 'code')
+		.then((data) => {
+			/*
+				data = User Data
+			*/
+		});
+	```
+- `getVerificationCodeByUserEmail(email)`
+  - Get verification code for a user by email
+  - Returns promise with sequelize object of verification code
+	```javascript
+	tools.user.getVerificationCodeByUserEmail('newuser@bitholla.com')
+		.then((data) => {
+			/*
+				{
+					id: 1,
+					code: 'code',
+					verified: false',
+					user_id: 99
+				}
+			*/
+		});
+	```
+- `getVerificationCodeByUserId(user_id)`
+  - Get verification code for a user by id
+  - Returns promise with sequelize object of verification code
+	```javascript
+	tools.user.getVerificationCodeByUserId(99)
+		.then((data) => {
+			/*
+				{
+					id: 1,
+					code: 'code',
+					verified: false',
+					user_id: 99
+				}
+			*/
+		});
+	```
+- `getUserEmailByVerificationCode(code)`
+  - Get user email by verification code
+  - Returns promise with user email
+	```javascript
+	tools.user.getUserEmailByVerificationCode('code')
+		.then((data) => {
+			// data = User email
+		});
+	```
+- `createUser(email, password, [opts = { role: 'user', id: null }])`
+  - Create a new user on both your exchange and the HollaEx Network
+  - All in one function that both signs up a new user, verifies the user, and creates the user on the Network
+  - `role` is the role you want to assign the user, `id` is the id of the user
+  - Returns promise resolve
+	```javascript
+	tools.user.createUser('newuser@bitholla.com', 'password', { role: 'admin', id: 99 })
+		.then((data) => {
+			// continue
+		});
+	```
+- `createUserOnNetwork(email)`
+  - Create a new user on the HollaEx Network
+  - Returns promise with new user
+	```javascript
+	tools.user.createUserOnNetwork('newuser@bitholla.com')
+		.then((data) => {
+			/*
+				data = User Network Data
+			*/
+		});
+	```
+- `loginUser(email, password, otp_code, captcha, [ip, device, domain, origin, referer])`
+  - Login user using bitHolla's login flow
+  - Returns promise with user data
+	```javascript
+	tools.user.loginUser('newuser@bitholla.com', 'password', 'otp_code', 'captcha')
+		.then((data) => {
+			/*
+				data = User Data
+			*/
+		});
+	```
+- `registerUserLogin(userId, ip, [otps = { device: null, domain: null, origin: null, referer: null }])`
+  - Register a user's login
+  - Returns promise with login data
+	```javascript
+	tools.user.registerUserLogin(
+		99,
+		'192.168.1.1',
+		{
+			device: 'PostmanRuntime/7.26.8',
+			domain: 'http://localhost:3000',
+			origin: 'origin',
+			referer: 'referer'
+		}
+	)
+		.then((data) => {
+			/*
+				{
+					"ip": "192.168.1.1",
+					"device": "PostmanRuntime/7.26.8",
+					"domain": "http://localhost:3000",
+					"timestamp": "2020-12-18T02:00:18.153Z",
+					"user_id": 99
+				}
+			*/
+		});
+	```
+- `checkAffiliation(affilicationCode, user_id)`
+  - Checks validity of affilication code
+  - Returns promise sequelize object of user data that used affiliation code
+	```javascript
+	tools.user.checkAffiliation('code', 99)
+		.then((data) => {
+			/*
+				data = User data
+			*/
+		});
+	```
+- `getAffiliationCount(userId)`
+  - Get number of affiliations user has
+  - Returns promise with count
+	```javascript
+	tools.user.getAffiliationCount(99)
+		.then((data) => {
+			/*
+				{
+					count: 1
+				}
+			*/
+		});
+	```
+- `getAllUsers()`
+  - Gets all user in exchange
+  - Returns promise with users data
+	```javascript
+	tools.user.getAllUsers()
+		.then((data) => {
+			/*
+				[
+					{...},
+					...
+				]
+			*/
+		});
+	```
+- `getAllUsersAdmin([opts = { id, search, pending, limit, page, order_by, order, start_date, end_date, format}])`
+  - Gets paginated list of user data in exchange
+  - `id` = id of user to get
+  - `search` = gets user with email or username or full_name that matches this value
+  - `pending` = gets users with pending verification values
+  - `limit` = limit of page
+  - `page` = page number`
+  - `order_by` = value to order list by
+  - `order` = asc or desc
+  - `start_date` = get users created after this date
+  - `end_date` = get users created before this date
+  - `format` = pass `csv` to get csv file
+  - Returns promise with users data
+	```javascript
+	tools.user.getAllUsersAdmin()
+		.then((data) => {
+			/*
+				{
+					"count": 2,
+					"data": [
+						{...},
+						{...}
+					]
+				}
+			*/
+		});
+	```
+- `getUserByEmail(email, rawData = true, networkData = false)`
+  - Gets a user's data by email
+  - `rawData` = Only get raw data (not sequelize object)
+  - `networkData` = Include network data (balance, etc.)
+  - Returns promise with user data
+	```javascript
+	tools.user.getUserByEmail('person@bitholla.com', true, true)
+		.then((data) => {
+			/*
+				{
+					"id": 1,
+					"email": "person@bitholla.com",
+					"full_name": "",
+					"gender": false,
+					"nationality": "",
+					"dob": null,
+					"phone_number": "",
+					"address": {...},
+					"id_data": {...},
+					"bank_account": [...],
+					"crypto_wallet": {...},
+					"verification_level": 1,
+					"otp_enabled": false,
+					"activated": false,
+					"note": "",
+					"username": "person",
+					"affiliation_code": "code",
+					"settings": {
+						"chat": {
+							"set_username": false
+						},
+						"risk": {
+							"order_portfolio_percentage": 90
+						},
+						"audio": {
+							"public_trade": false,
+							"order_completed": true,
+							"order_partially_completed": true
+						},
+						"language": "en",
+						"interface": {
+							"theme": "dark",
+							"order_book_levels": 10
+						},
+						"notification": {
+							"popup_order_completed": true,
+							"popup_order_confirmation": true,
+							"popup_order_partially_filled": true
+						}
+					},
+					"flagged": false,
+					"affiliation_rate": 0,
+					"network_id": 1,
+					"created_at": "2020-12-18T02:00:06.998Z",
+					"updated_at": "2020-12-18T02:00:37.715Z"
+				}
+			*/
+		});
+	```
+- `getUserByKitId(kit_id, rawData = true, networkData = false)`
+  - Gets a user's data by kit (exchange) id
+  - `rawData` = Only get raw data (not sequelize object)
+  - `networkData` = Include network data (balance, etc.)
+  - Returns promise with user data
+	```javascript
+	tools.user.getUserByKitId(1)
+		.then((data) => {
+			/*
+				{
+					"id": 1,
+					"email": "person@bitholla.com",
+					"full_name": "",
+					"gender": false,
+					"nationality": "",
+			getUserEmailByVerificationCode		"dob": null,
+					"phone_number": "",
+					"address": {...},
+					"id_data": {...},
+					"bank_account": [...],
+					"crypto_wallet": {...},
+					"verification_level": 1,
+					"otp_enabled": false,
+					"activated": false,
+					"note": "",
+					"username": "person",
+					"affiliation_code": "code",
+					"settings": {
+						"chat": {
+							"set_username": false
+						},
+						"risk": {
+							"order_portfolio_percentage": 90
+						},
+						"audio": {
+							"public_trade": false,
+							"order_completed": true,
+							"order_partially_completed": true
+						},
+						"language": "en",
+						"interface": {
+							"theme": "dark",
+							"order_book_levels": 10
+						},
+						"notification": {
+							"popup_order_completed": true,
+							"popup_order_confirmation": true,
+							"popup_order_partially_filled": true
+						}
+					},
+					"flagged": false,
+					"affiliation_rate": 0,
+					"network_id": 1,
+					"created_at": "2020-12-18T02:00:06.998Z",
+					"updated_at": "2020-12-18T02:00:37.715Z"
+				}
+			*/
+		});
+	```
+- `getUserByNetworkId(network_id, rawData = true, networkData = false)`
+  - Gets a user's data by HollaEx Network Id
+  - `rawData` = Only get raw data (not sequelize object)
+  - `networkData` = Include network data (balance, etc.)
+  - Returns promise with user data
+	```javascript
+	tools.user.getUserByNetworkId(1)
+		.then((data) => {
+			/*
+				{
+					"id": 1,
+					"email": "person@bitholla.com",
+					"full_name": "",
+					"gender": false,
+					"nationality": "",
+					"dob": null,
+					"phone_number": "",
+					"address": {...},
+					"id_data": {...},
+					"bank_account": [...],
+					"crypto_wallet": {...},
+					"verification_level": 1,
+					"otp_enabled": false,
+					"activated": false,
+					"note": "",
+					"username": "person",
+					"affiliation_code": "code",
+					"settings": {
+						"chat": {
+							"set_username": false
+						},
+						"risk": {
+							"order_portfolio_percentage": 90
+						},
+						"audio": {
+							"public_trade": false,
+							"order_completed": true,
+							"order_partially_completed": true
+						},
+						"language": "en",
+						"interface": {
+							"theme": "dark",
+							"order_book_levels": 10
+						},
+						"notification": {
+							"popup_order_completed": true,
+							"popup_order_confirmation": true,
+							"popup_order_partially_filled": true
+						}
+					},
+					"flagged": false,
+					"affiliation_rate": 0,
+					"network_id": 1,
+					"created_at": "2020-12-18T02:00:06.998Z",
+					"updated_at": "2020-12-18T02:00:37.715Z"
+				}
+			*/
+		});
+	```
+- `getUserNetwork(network_id)`
+  - Gets user's Network data
+  - Returns promise with user data
+	```javascript
+	tools.user.getUserByNetworkId(1)
+		.then((data) => {
+			/*
+				{
+					id: 1,
+					email: 'person@bitholla.com',
+					crypto_wallet: {...}
+				}
+			*/
+		});
+	```
+- `getUsersNetwork()`
+  - Gets network data for all of your exchange's users
+  - Returns promise with user data
+	```javascript
+	tools.user.getUserByNetworkId(1)
+		.then((data) => {
+			/*
+				{
+					count: 6,
+					data: [
+						{...},
+						...
+					]
+				}
+			*/
+		});
+	```
+- `getUserTier(user_id)`
+  - Gets tier info for a user's tier
+  - Returns promise with tier data
+	```javascript
+	tools.user.getUserTier(1)
+		.then((data) => {
+			/*
+				{
+					"id": 1,
+					"name": "tester",
+					"icon": "",
+					"description": "tester level",
+					"deposit_limit": 0,
+					"withdrawal_limit": 0,
+					"fees": {
+						"maker": {
+							"xht-usdt": 0.2
+						},
+						"taker": {
+							"xht-usdt": 0.2
+						}
+					},
+					"note": "",
+					"created_at": "2020-12-10T05:18:19.931Z",
+					"updated_at": "2020-12-10T06:06:02.358Z"
+				}
+			*/
+		});
+	```
+- `freezeUserById(user_id)`
+  - Freeze a user's account by kit id
+  - Returns promise with sequelize object of user data
+	```javascript
+	tools.user.freezeUserById(1)
+		.then((data) => {
+			// data = User data
+		});
+	```
+- `freezeUserByEmail(email)`
+  - Freeze a user's account by email
+  - Returns promise with sequelize object of user data
+	```javascript
+	tools.user.freezeUserByEmail('person@bitholla.com')
+		.then((data) => {
+			// data = User data
+		});
+	```
+- `unfreezeUserById(user_id)`
+  - Unfreeze a user's account by kit id
+  - Returns promise with sequelize object of user data
+	```javascript
+	tools.user.unfreezeUserById(1)
+		.then((data) => {
+			// data = User data
+		});
+	```
+- `unfreezeUserByEmail(email)`
+  - Unfreeze a user's account by email
+  - Returns promise with sequelize object of user data
+	```javascript
+	tools.user.unfreezeUserByEmail('person@bitholla.com')
+		.then((data) => {
+			// data = User data
+		});
+	```
+- `getUserRole(userOpts = {})`
+  - Get user role
+  - `userOpts`= Pass either kit_id, network_id, or email
+  - Returns promise with user's role
+	```javascript
+	tools.user.getUserRole({ email: 'person@bitholla.com' })
+		.then((data) => {
+			// data = User role ('admin', 'user', etc.)
+		});
+	```
+- `updateUserRole(user_id, role)`
+  - Update a user's role by id
+  - Returns promise with user data
+	```javascript
+	tools.user.updateUserRole(99, 'user')
+		.then((data) => {
+			/*
+				{
+					"id": 99,
+					"email": 'person@bitholla.com'
+					"is_admin": false,
+					"is_support": false,
+					"is_kyc": false,
+					"is_supervisor": false,
+					"is_communicator": false
+				}
+			*/
+		});
+	```
+- `updateUserSettings(userOpts = {}, settings = {})`
+  - Update a user's settings
+  - `userOpts`= Pass either kit_id, network_id, or email
+  - `settings` = New settings data
+  - Returns promise with user's role
+	```javascript
+	tools.user.updateUserSettings(
+		{
+			email: 'person@bitholla.com'
+		},
+		{
+			language: 'ko'
+		}
+	)
+		.then((data) => {
+			// data = User data
+		});
+	```
+- `updateUserNote(userId, note)`
+  - Update a user's note
+  - Returns promise with user data
+	```javascript
+	tools.user.updateUserSettings(99, 'id is 99')
+		.then((data) => {
+			// data = User data
+		});
+	```
+- `changeUserVerificationLevelById(userId, newLevel)`
+  - Update a user's verification level (tier level)
+  - Returns promise resolve
+	```javascript
+	tools.user.changeUserVerificationLevelById(99, 3)
+		.then((data) => {
+			//continue
+		});
+	```
+- `deactivateUserOtpById(userId)`
+  - Deactivate user otp by kit id
+  - Returns promise with user data
+	```javascript
+	tools.user.deactivateUserOtpById(99)
+		.then((data) => {
+			// data = User data
+		});
+	```
+- `toggleFlaggedUserById(userId)`
+  - Toggle flag value for user
+  - Returns promise with user data
+	```javascript
+	tools.user.toggleFlaggedUserById(99)
+		.then((data) => {
+			// data = User data
+		});
+	```
+- `getUserLogins([opts = { userid, limit, page, order_by, order, start_date, end_date, format}])`
+  - Gets paginated list of user logins in exchange
+  - `userid` = id of user to get
+  - `search` = gets user with email or username or full_name that matches this value
+  - `pending` = gets users with pending verification values
+  - `limit` = limit of page
+  - `page` = page number`
+  - `order_by` = value to order list by
+  - `order` = asc or desc
+  - `start_date` = get users created after this date
+  - `end_date` = get users created before this date
+  - `format` = pass `csv` to get csv file
+  - Returns promise with users data
+	```javascript
+	tools.user.getUserLogins()
+		.then((data) => {
+			/*
+				{
+					"count": 2,
+					"data": [
+						{...},
+						{...}
+					]
+				}
+			*/
+		});
+	```
+- `createAudit(adminId, event, ip, [opts = { userId, prevUserData, newUserData, domain }])`
+  - Create audit for a user
+  - Returns promise with audit data
+	```javascript
+	tools.user.createAudit(1, 'bank update', 127.0.0.1, {
+		userId: 99,
+		prevUserData: {
+			// bank data before
+		},
+		newUserData: {
+			// bank data before
+		},
+		domain: 'https://google.com'
+	})
+		.then((data) => {
+			/*
+				{
+					admin_id: 1
+					description: {
+						note: "0.4 eth",
+						old: {...},
+						new: {...}
+					}
+					note: "0.4 eth"
+					user_id: 99
+					domain: "https://google.com"
+					event: "bank update"
+					id: 1
+					ip: "127.0.0.1"
+					timestamp: "2020-06-30T06:07:08.328Z"
+				}
+			*/
+		});
+	```
+- `getUserAudits([opts = { userid, limit, page, order_by, order, start_date, end_date, format}])`
+  - Gets paginated list of user audits in exchange
+  - `userid` = id of user to get
+  - `search` = gets user with email or username or full_name that matches this value
+  - `pending` = gets users with pending verification values
+  - `limit` = limit of page
+  - `page` = page number`
+  - `order_by` = value to order list by
+  - `order` = asc or desc
+  - `start_date` = get users created after this date
+  - `end_date` = get users created before this date
+  - `format` = pass `csv` to get csv file
+  - Returns promise with users data
+	```javascript
+	tools.user.getUserAudits()
+		.then((data) => {
+			/*
+				{
+					"count": 2,
+					"data": [
+						{...},
+						{...}
+					]
+				}
+			*/
+		});
+	```
+- `setUsernameById(userId, username)`
+  - Set username for a user
+  - Returns promise with sequelize object of user data
+	```javascript
+	tools.user.setUsernameById(99, 'myUsername')
+		.then((data) => {
+			// data = User data
+		});
+	```
+- `createUserCryptoAddressByNetworkId(networkId, crypto)`
+  - Create user crypto address by network id
+  - Returns promise with new address
+	```javascript
+	tools.user.createUserCryptoAddressByNetworkId(1, 'xht')
+		.then((data) => {
+			/*
+				{
+					message: 'Address created successfully',
+					address: 'address',
+					crypto: 'xht'
+				}
+			*/
+		});
+	```
+- `createUserCryptoAddressByKitId(kitId, crypto)`
+  - Create user crypto address by kit id
+  - Returns promise with new address
+	```javascript
+	tools.user.createUserCryptoAddressByKitId(99, 'xht')
+		.then((data) => {
+			/*
+				{
+					message: 'Address created successfully',
+					address: 'address',
+					crypto: 'xht'
+				}
+			*/
+		});
+	```
+- `getUserStatsByKitId(userId)`
+  - Create user stats by kit id
+  - Returns promise with user stats
+	```javascript
+	tools.user.getUserStatsByKitId(99)
+		.then((data) => {
+			/*
+				{
+					data: {
+						'1': {
+							month: '1',
+							symbol: 'xht-usdt',
+							volume: 0
+						},
+						...
+					},
+					updatedAt: '2020-12-18T04:33:52.370Z'
+				}
+			*/
+		});
+	```
+- `getUserStatsByNetworkId(networkId)`
+  - Create user stats by network id
+  - Returns promise with user stats
+	```javascript
+	tools.user.getUserStatsByNetworkId(1)
+		.then((data) => {
+			/*
+				{
+					data: {
+						'1': {
+							month: '1',
+							symbol: 'xht-usdt',
+							volume: 0
+						},
+						...
+					},
+					updatedAt: '2020-12-18T04:33:52.370Z'
+				}
+			*/
+		});
+	``
+- `getExchangeOperators([opts = {limit, page, order_by, order}])`
+  - Gets paginated list of exchange operators (admin, supervisor, support, communicator, kyc)
+  - `limit` = limit of page
+  - `page` = page number`
+  - `order_by` = value to order list by
+  - `order` = asc or desc
+  - Returns promise with users data
+	```javascript
+	tools.user.getExchangeOperators()
+		.then((data) => {
+			/*
+				{
+					"count": 2,
+					"data": [
+						{...},
+						{...}
+					]
+				}
+			*/
+		});
+	```
+- `inviteExchangeOperator(invitingEmail, email, role)`
+  - Invite a user to your exchange as an operator
+  - Will create a new user if there is no user with `email`
+  - Sends email to invited user
+  - `invitingEmail` = user inviting operator
+  - `email` = user being invited
+  - `role` = Role to invlue user as
+  - Returns promise resolve
+	```javascript
+	tools.user.inviteExchangeOperator('person@bitholla.com', 'newop@bitholla.com', 'admin')
+		.then((data) => {
+			//continue
+		});
+	```
