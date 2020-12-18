@@ -309,6 +309,39 @@ const getAllUserTradesByKitId = (userKitId, symbol, limit, page, orderBy, order,
 		});
 };
 
+const getAllUserTradesByEmail = (email, symbol, limit, page, orderBy, order, startDate, endDate, format) => {
+	if (symbol && !subscribedToPair(symbol)) {
+		return reject(new Error(INVALID_SYMBOL(symbol)));
+	}
+	return getUserByEmail(email)
+		.then((user) => {
+			if (!user) {
+				throw new Error(USER_NOT_FOUND);
+			}
+			return getNodeLib().getUserTrades({
+				userId: user.network_id,
+				symbol,
+				limit,
+				page,
+				orderBy,
+				order,
+				startDate,
+				endDate
+			});
+		})
+		.then((trades) => {
+			if (format) {
+				if (trades.data.length === 0) {
+					throw new Error(NO_DATA_FOR_CSV);
+				}
+				const csv = parse(trades.data, Object.keys(trades.data[0]));
+				return csv;
+			} else {
+				return trades;
+			}
+		});
+};
+
 const getAllUserTradesByNetworkId = (networkId, symbol, limit, page, orderBy, order, startDate, endDate) => {
 	return getNodeLib().getUserTrades({
 		userId: networkId,
@@ -352,5 +385,6 @@ module.exports = {
 	cancelUserOrderByNetworkId,
 	getAllUserOrdersByNetworkId,
 	cancelAllUserOrdersByNetworkId,
-	getGeneratedFees
+	getGeneratedFees,
+	getAllUserTradesByEmail
 };

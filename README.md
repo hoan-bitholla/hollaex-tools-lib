@@ -1428,3 +1428,495 @@ const tools = require('hollaex-tools-lib');
 			//continue
 		});
 	```
+
+#### Order functions
+
+- `createUserOrderByKitId(userId, symbol, side, size, type, price)`
+  - Create an order for a user by kit id
+  - Returns promise with new order
+	```javascript
+	tools.order.createUserOrderByKitId(
+		99,
+		'xht-usdt',
+		'buy',
+		1,
+		'limit',
+		0.1
+	)
+		.then((data) => {
+			/*
+				{
+					meta: {},
+					symbol: 'xht-usdt',
+					side: 'buy',
+					size: 1,
+					type: 'limit',
+					price: 0.1,
+					fee_structure: { maker: 0, taker: 0 },
+					fee_coin: 'xht',
+					id: 'orderid',
+					created_by: 1,
+					filled: 0,
+					status: 'new',
+					fee: 0,
+					updated_at: '2020-12-18T04:52:56.780Z',
+					created_at: '2020-12-18T04:52:56.780Z',
+					stop: null
+				}
+			*/
+		});
+	```
+- `createUserOrderByEmail(email, symbol, side, size, type, price)`
+  - Create an order for a user by email
+  - Returns promise with new order
+	```javascript
+	tools.order.createUserOrderByKitId(
+		'person@bitholla.com',
+		'xht-usdt',
+		'buy',
+		1,
+		'limit',
+		0.1
+	)
+		.then((data) => {
+			/*
+				{
+					meta: {},
+					symbol: 'xht-usdt',
+					side: 'buy',
+					size: 1,
+					type: 'limit',
+					price: 0.1,
+					fee_structure: { maker: 0, taker: 0 },
+					fee_coin: 'xht',
+					id: 'orderid',
+					created_by: 1,
+					filled: 0,
+					status: 'new',
+					fee: 0,
+					updated_at: '2020-12-18T04:52:56.780Z',
+					created_at: '2020-12-18T04:52:56.780Z',
+					stop: null
+				}
+			*/
+		});
+	```
+- `createUserOrderByNetworkId(networkId, symbol, side, size, type, price)`
+  - Create an order for a user by network id
+  - Returns promise with new order
+	```javascript
+	tools.order.createUserOrderByNetworkId(
+		1,
+		'xht-usdt',
+		'buy',
+		1,
+		'limit',
+		0.1
+	)
+		.then((data) => {
+			/*
+				{
+					meta: {},
+					symbol: 'xht-usdt',
+					side: 'buy',
+					size: 1,
+					type: 'limit',
+					price: 0.1,
+					fee_structure: { maker: 0, taker: 0 },
+					fee_coin: 'xht',
+					id: 'orderid',
+					created_by: 1,
+					filled: 0,
+					status: 'new',
+					fee: 0,
+					updated_at: '2020-12-18T04:52:56.780Z',
+					created_at: '2020-12-18T04:52:56.780Z',
+					stop: null
+				}
+			*/
+		});
+	```
+- `cancelUserOrderByKitId(userId, orderId)`
+  - Cancel an order for a user by kit id
+  - Returns promise with canceled order
+	```javascript
+	tools.order.cancelUserOrderByKitId(99, 'id')
+		.then((data) => {
+			/*
+				{
+					meta: {},
+					symbol: 'xht-usdt',
+					side: 'buy',
+					size: 1,
+					type: 'limit',
+					price: 0.1,
+					fee_structure: { maker: 0, taker: 0 },
+					fee_coin: 'xht',
+					id: 'orderid',
+					created_by: 1,
+					filled: 0,
+					status: 'canceled',
+					fee: 0,
+					updated_at: '2020-12-18T04:52:56.780Z',
+					created_at: '2020-12-18T04:52:56.780Z',
+					stop: null
+				}
+			*/
+		});
+	```
+- `cancelUserOrderByEmail(email, orderId)`
+  - Cancel an order for a user by email
+  - Returns promise with canceled order
+	```javascript
+	tools.order.cancelUserOrderByEmail('person@bitholla.com', 'id')
+		.then((data) => {
+			/*
+				{
+					meta: {},
+					symbol: 'xht-usdt',
+					side: 'buy',
+					size: 1,
+					type: 'limit',
+					price: 0.1,
+					fee_structure: { maker: 0, taker: 0 },
+					fee_coin: 'xht',
+					id: 'orderid',
+					created_by: 1,
+					filled: 0,
+					status: 'canceled',
+					fee: 0,
+					updated_at: '2020-12-18T04:52:56.780Z',
+					created_at: '2020-12-18T04:52:56.780Z',
+					stop: null
+				}
+			*/
+		});
+	```
+- `cancelUserOrderByNetworkId(networkId, orderId)`
+  - Cancel an order for a user by network id
+  - Returns promise with canceled order
+	```javascript
+	tools.order.cancelUserOrderByNetworkId(1, 'id')
+		.then((data) => {
+			/*
+				{
+					meta: {},
+					symbol: 'xht-usdt',
+					side: 'buy',
+					size: 1,
+					type: 'limit',
+					price: 0.1,
+					fee_structure: { maker: 0, taker: 0 },
+					fee_coin: 'xht',
+					id: 'orderid',
+					created_by: 1,
+					filled: 0,
+					status: 'canceled',
+					fee: 0,
+					updated_at: '2020-12-18T04:52:56.780Z',
+					created_at: '2020-12-18T04:52:56.780Z',
+					stop: null
+				}
+			*/
+		});
+	```
+- `cancelAllUserOrdersByKitId(userId, [symbol])`
+  - Cancel all orders for a user by kit id
+  - Returns promise with array of canceled orders
+	```javascript
+	tools.order.cancelAllUserOrdersByKitId(99, 'xht-usdt')
+		.then((data) => {
+			/*
+				[
+					{...},
+					{...},
+					...
+				]
+			*/
+		});
+	```
+- `cancelAllUserOrdersByEmail(email, [symbol])`
+  - Cancel all orders for a user by email
+  - Returns promise with array of canceled orders
+	```javascript
+	tools.order.cancelAllUserOrdersByEmail('person@bitholla.com', 'xht-usdt')
+		.then((data) => {
+			/*
+				[
+					{...},
+					{...},
+					...
+				]
+			*/
+		});
+	```
+- `cancelAllUserOrdersByNetworkId(networkId, [symbol])`
+  - Cancel all orders for a user by network id
+  - Returns promise with array of canceled orders
+	```javascript
+	tools.order.cancelAllUserOrdersByNetworkId(1, 'xht-usdt')
+		.then((data) => {
+			/*
+				[
+					{...},
+					{...},
+					...
+				]
+			*/
+		});
+	```
+- `getUserOrderByKitId(userId, orderid)`
+  - Get an order for a user by kit id
+  - Returns promise with order data
+	```javascript
+	tools.order.getUserOrderByKitId(99, 'orderId')
+		.then((data) => {
+			// data = Order data
+		});
+	```
+- `getUserOrderByEmail(email, orderid)`
+  - Get an order for a user by email
+  - Returns promise with order data
+	```javascript
+	tools.order.getUserOrderByEmail('person@bitholla.com', 'orderId')
+		.then((data) => {
+			// data = Order data
+		});
+	```
+- `getUserOrderByNetworkId(networkId, orderid)`
+  - Get an order for a user by network id
+  - Returns promise with order data
+	```javascript
+	tools.order.getUserOrderByNetworkId(1, 'orderId')
+		.then((data) => {
+			// data = Order data
+		});
+	```
+- `getAllExchangeOrders([symbol, side, status, open, limit, page, order_by, order, start_date, end_date])`
+  - Gets paginated list of all orders on exchange
+  - `symbol` = Filter orders by symbol
+  - `side` = Filter orders by side
+  - `status` = Filter orders by status
+  - `open` = Filter orders by open/close
+  - `limit` = limit of page
+  - `page` = page number`
+  - `order_by` = value to order list by
+  - `order` = asc or desc
+  - `start_date` = get users created after this date
+  - `end_date` = get users created before this date
+  - Returns promise with orders data
+	```javascript
+	tools.order.getAllExchangeOrders()
+		.then((data) => {
+			/*
+				{
+					"count": 2,
+					"data": [
+						{...},
+						{...}
+					]
+				}
+			*/
+		});
+	```
+- `getAllUserOrdersByKitId(userId [, symbol, side, status, open, limit, page, order_by, order, start_date, end_date])`
+  - Gets paginated list of all orders for a user by kit id
+  - `symbol` = Filter orders by symbol
+  - `side` = Filter orders by side
+  - `status` = Filter orders by status
+  - `open` = Filter orders by open/close
+  - `limit` = limit of page
+  - `page` = page number`
+  - `order_by` = value to order list by
+  - `order` = asc or desc
+  - `start_date` = get users created after this date
+  - `end_date` = get users created before this date
+  - Returns promise with orders data
+	```javascript
+	tools.order.getAllUserOrdersByKitId(99)
+		.then((data) => {
+			/*
+				{
+					"count": 2,
+					"data": [
+						{...},
+						{...}
+					]
+				}
+			*/
+		});
+	```
+- `getAllUserOrdersByEmail(email [, symbol, side, status, open, limit, page, order_by, order, start_date, end_date])`
+  - Gets paginated list of all orders for a user by email
+  - `symbol` = Filter orders by symbol
+  - `side` = Filter orders by side
+  - `status` = Filter orders by status
+  - `open` = Filter orders by open/close
+  - `limit` = limit of page
+  - `page` = page number`
+  - `order_by` = value to order list by
+  - `order` = asc or desc
+  - `start_date` = get users created after this date
+  - `end_date` = get users created before this date
+  - Returns promise with orders data
+	```javascript
+	tools.order.getAllUserOrdersByEmail('person@bitholla.com')
+		.then((data) => {
+			/*
+				{
+					"count": 2,
+					"data": [
+						{...},
+						{...}
+					]
+				}
+			*/
+		});
+	```
+- `getAllUserOrdersByNetworkId(networkId [, symbol, side, status, open, limit, page, order_by, order, start_date, end_date])`
+  - Gets paginated list of all orders for a user by network id
+  - `symbol` = Filter orders by symbol
+  - `side` = Filter orders by side
+  - `status` = Filter orders by status
+  - `open` = Filter orders by open/close
+  - `limit` = limit of page
+  - `page` = page number`
+  - `order_by` = value to order list by
+  - `order` = asc or desc
+  - `start_date` = get users created after this date
+  - `end_date` = get users created before this date
+  - Returns promise with orders data
+	```javascript
+	tools.order.getAllUserOrdersByNetworkId(1)
+		.then((data) => {
+			/*
+				{
+					"count": 2,
+					"data": [
+						{...},
+						{...}
+					]
+				}
+			*/
+		});
+	```
+- `getAllTradesNetwork([symbol, limit, page, order_by, order, start_date, end_date, format])`
+  - Gets paginated list of all trades on exchange
+  - `symbol` = Filter orders by symbol
+  - `limit` = limit of page
+  - `page` = page number`
+  - `order_by` = value to order list by
+  - `order` = asc or desc
+  - `start_date` = get users created after this date
+  - `end_date` = get users created before this date
+  - `format` = pass `csv` to get csv file
+  - Returns promise with trades data
+	```javascript
+	tools.order.getAllTradesNetwork()
+		.then((data) => {
+			/*
+				{
+					"count": 2,
+					"data": [
+						{...},
+						{...}
+					]
+				}
+			*/
+		});
+	```
+- `getAllUserTradesByKitId(userId [, symbol, limit, page, order_by, order, start_date, end_date, format])`
+  - Gets paginated list of user's trades on exchange by kit id
+  - `symbol` = Filter orders by symbol
+  - `limit` = limit of page
+  - `page` = page number`
+  - `order_by` = value to order list by
+  - `order` = asc or desc
+  - `start_date` = get users created after this date
+  - `end_date` = get users created before this date
+  - `format` = pass `csv` to get csv file
+  - Returns promise with trades data
+	```javascript
+	tools.order.getAllUserTradesByKitId(99)
+		.then((data) => {
+			/*
+				{
+					"count": 2,
+					"data": [
+						{...},
+						{...}
+					]
+				}
+			*/
+		});
+	```
+- `getAllUserTradesByEmail(email [, symbol, limit, page, order_by, order, start_date, end_date, format])`
+  - Gets paginated list of user's trades on exchange by email
+  - `symbol` = Filter orders by symbol
+  - `limit` = limit of page
+  - `page` = page number`
+  - `order_by` = value to order list by
+  - `order` = asc or desc
+  - `start_date` = get users created after this date
+  - `end_date` = get users created before this date
+  - `format` = pass `csv` to get csv file
+  - Returns promise with trades data
+	```javascript
+	tools.order.getAllUserTradesByEmail('person@bitholla.com')
+		.then((data) => {
+			/*
+				{
+					"count": 2,
+					"data": [
+						{...},
+						{...}
+					]
+				}
+			*/
+		});
+	```
+- `getAllUserTradesByNetwork(networkId [, symbol, limit, page, order_by, order, start_date, end_date, format])`
+  - Gets paginated list of user's trades on exchange by network id
+  - `symbol` = Filter orders by symbol
+  - `limit` = limit of page
+  - `page` = page number`
+  - `order_by` = value to order list by
+  - `order` = asc or desc
+  - `start_date` = get users created after this date
+  - `end_date` = get users created before this date
+  - `format` = pass `csv` to get csv file
+  - Returns promise with trades data
+	```javascript
+	tools.order.getAllUserTradesByNetwork(1)
+		.then((data) => {
+			/*
+				{
+					"count": 2,
+					"data": [
+						{...},
+						{...}
+					]
+				}
+			*/
+		});
+	```
+- `getGeneratedFees([limit, page, start_date, end_date])`
+  - Gets paginated list of exchange's generated fees
+  - `limit` = limit of page
+  - `page` = page number`
+  - `start_date` = get users created after this date
+  - `end_date` = get users created before this date
+  - Returns promise with fees data
+	```javascript
+	tools.order.getGeneratedFees()
+		.then((data) => {
+			/*
+				{
+					"count": 2,
+					"data": {
+						...
+					}
+				}
+			*/
+		});
+	```
