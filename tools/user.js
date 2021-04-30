@@ -180,6 +180,10 @@ const createUser = (
 					is_communicator: false
 				};
 
+				if (!opts.role) {
+					opts.role = 'user';
+				}
+
 				if (opts.role !== 'user') {
 					const userRole = 'is_' + opts.role.toLowerCase();
 					if (roles[userRole] === undefined) {
@@ -551,35 +555,54 @@ const getAllUsersAdmin = (opts = {
 		});
 };
 
-const getUser = (opts = {}, rawData = true, networkData = false) => {
-	if (!opts.email && !opts.kit_id && !opts.network_id) {
+const getUser = (
+	identifier = {
+		email: null,
+		kidId: null,
+		networkId: null
+	},
+	opts = {
+		networkData: false,
+		sequelize: {
+			raw: true
+		}
+	}
+) => {
+	const { email, kitId, networkId } = identifier;
+
+	if (!email && !kitId && !networkId) {
 		return reject(new Error(PROVIDE_USER_CREDENTIALS));
 	}
 
 	const where = {};
-	if (opts.email) {
-		where.email = opts.email;
-	} else if (opts.kit_id) {
-		where.id = opts.kit_id;
+
+	if (email) {
+		where.email = identifier.email;
+	} else if (kitId) {
+		where.id = kitId;
 	} else {
-		where.network_id = opts.network_id;
+		where.network_id = networkId;
+	}
+
+	if (!isPlainObject(opts.sequelize)) {
+		opts.sequelize = {
+			raw: true
+		};
+	} else {
+		if (!isBoolean(opts.sequelize.raw)) {
+			opts.sequelize.raw = true;
+		}
 	}
 
 	return dbQuery.findOne('user', {
 		where,
-		raw: rawData
+		...opts.sequelize
 	})
 		.then(async (user) => {
-			if (networkData && user.network_id) {
-				if (rawData) {
-					const networkData = await getNodeLib().getUser(user.network_id);
-					user.balance = networkData.balance;
-					user.wallet = networkData.wallet;
-				} else {
-					const networkData = await getNodeLib().getUser(user.network_id);
-					user.dataValues.balance = networkData.balance;
-					user.dataValues.wallet = networkData.wallet;
-				}
+			if (opts.networkData && user.network_id) {
+				const networkData = await getNodeLib().getUser(user.network_id);
+				user.balance = networkData.balance;
+				user.wallet = networkData.wallet;
 			}
 			return user;
 		});
@@ -593,22 +616,38 @@ const getUsersNetwork = () => {
 	return getNodeLib().getUsers();
 };
 
-const getUserByEmail = (email, rawData = true, networkData = false) => {
+const getUserByEmail = (
+	email,
+	opts = {
+		networkData: false,
+		sequelize: {
+			raw: true
+		}
+	}
+) => {
 	if (!email || !isEmail(email)) {
 		return reject(new Error(PROVIDE_VALID_EMAIL));
 	}
-	return getUser({ email }, rawData, networkData);
+	return getUser({ email }, opts);
 };
 
-const getUserByKitId = (kit_id, rawData = true, networkData = false) => {
-	if (!kit_id) {
+const getUserByKitId = (
+	kitId,
+	opts = {
+		networkData: false,
+		sequelize: {
+			raw: true
+		}
+	}
+) => {
+	if (!kitId) {
 		return reject(new Error(PROVIDE_KIT_ID));
 	}
-	return getUser({ kit_id }, rawData, networkData);
+	return getUser({ kitId }, opts);
 };
 
-const getUserTier = (user_id) => {
-	return getUser({ user_id }, true)
+const getUserTier = (kitId) => {
+	return getUser({ kitId })
 		.then((user) => {
 			if (!user) {
 				throw new Error(USER_NOT_FOUND);
@@ -625,11 +664,19 @@ const getUserTier = (user_id) => {
 		});
 };
 
-const getUserByNetworkId = (network_id, rawData = true, networkData = false) => {
-	if (!network_id) {
+const getUserByNetworkId = (
+	networkId,
+	opts = {
+		networkData: false,
+		sequelize: {
+			raw: true
+		}
+	}
+) => {
+	if (!networkId) {
 		return reject(new Error(PROVIDE_NETWORK_ID));
 	}
-	return getUser({ network_id }, rawData, networkData);
+	return getUser({ networkId }, opts);
 };
 
 const freezeUserById = (userId) => {
@@ -738,12 +785,13 @@ const unfreezeUserByEmail = (email) => {
 		});
 };
 
-const getUserRole = (opts = {}) => {
-	return getUser(opts, true)
+const getUserRole = (identifier = {}) => {
+	return getUser(identifier)
 		.then((user) => {
 			if (!user) {
 				throw new Error(USER_NOT_FOUND);
 			}
+
 			if (user.is_admin) {
 				return 'admin';
 			} else if (user.is_supervisor) {
@@ -760,13 +808,13 @@ const getUserRole = (opts = {}) => {
 		});
 };
 
-const updateUserRole = (user_id, role) => {
-	if (user_id === 1) {
+const updateUserRole = (userId, role) => {
+	if (userId === 1) {
 		return reject(new Error(CANNOT_CHANGE_ADMIN_ROLE));
 	}
 	return dbQuery.findOne('user', {
 		where: {
-			id: user_id
+			id: userId
 		},
 		attributes: [
 			'id',
@@ -858,8 +906,12 @@ const joinSettings = (userSettings = {}, newSettings = {}) => {
 	return joinedSettings;
 };
 
-const updateUserSettings = (userOpts = {}, settings = {}) => {
-	return getUser(userOpts, false)
+const updateUserSettings = (identifier = {}, settings = {}) => {
+	return getUser(identifier, {
+		sequelize: {
+			raw: false
+		}
+	})
 		.then((user) => {
 			if (!user) {
 				throw new Error(USER_NOT_FOUND);
@@ -1172,16 +1224,18 @@ const createAudit = (adminId, event, ip, opts = {
 	});
 };
 
-const getUserAudits = (opts = {
-	userId: null,
-	limit: null,
-	page: null,
-	orderBy: null,
-	order: null,
-	startDate: null,
-	endDate: null,
-	format: null
-}) => {
+const getUserAudits = (
+	opts = {
+		userId: null,
+		limit: null,
+		page: null,
+		orderBy: null,
+		order: null,
+		startDate: null,
+		endDate: null,
+		format: null
+	}
+) => {
 	const pagination = paginationQuery(opts.limit, opts.page);
 	const timeframe = timeframeQuery(opts.startDate, opts.endDate);
 	const ordering = orderingQuery(opts.orderBy, opts.order);
@@ -1254,9 +1308,13 @@ const setUsernameById = (userId, username) => {
 		});
 };
 
-const createUserCryptoAddressByNetworkId = (networkId, crypto, opts = {
-	network: null
-}) => {
+const createUserCryptoAddressByNetworkId = (
+	networkId,
+	crypto,
+	opts = {
+		network: null
+	}
+) => {
 	if (!networkId) {
 		return reject(new Error(USER_NOT_REGISTERED_ON_NETWORK));
 	}

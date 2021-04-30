@@ -26,7 +26,7 @@ const {
 	SUPPORT_DISABLED,
 	NO_NEW_DATA
 } = require(`${SERVER_PATH}/messages`);
-const { each, difference, isPlainObject } = require('lodash');
+const { each, difference, isPlainObject, isNumber } = require('lodash');
 const { publisher } = require('./database/redis');
 const { sendEmail: sendSmtpEmail } = require(`${SERVER_PATH}/mail`);
 const { MAILTYPE } = require(`${SERVER_PATH}/mail/strings`);
@@ -335,18 +335,24 @@ const updateNetworkKeySecret = (apiKey, apiSecret) => {
 		});
 };
 
-const getAssetsPrices = (assets = [], quote, amount) => {
+const getAssetsPrices = (
+	assets = [],
+	opts = {
+		quote: null,
+		amount: null
+	}
+) => {
 	for (let asset of assets) {
 		if (!subscribedToCoin(asset)) {
 			return reject(new Error('Invalid asset'));
 		}
 	}
 
-	if (amount <= 0) {
+	if (isNumber(opts.amount) && opts.amount <= 0) {
 		return reject(new Error('Amount must be greater than 0'));
 	}
 
-	return getNodeLib().getOraclePrices(assets, { quote, amount });
+	return getNodeLib().getOraclePrices(assets, opts);
 };
 
 const storeImageOnNetwork = async (image, name) => {
@@ -423,25 +429,18 @@ const getTickers = () => {
 };
 
 const getTradesHistory = (
-	symbol,
-	side,
-	limit,
-	page,
-	orderBy,
-	order,
-	startDate,
-	endDate
+	opts = {
+		symbol: null,
+		side: null,
+		limit: null,
+		page: null,
+		orderBy: null,
+		order: null,
+		startDate: null,
+		endDate: null
+	}
 ) => {
-	return getNodeLib().getTradesHistory({
-		symbol,
-		side,
-		limit,
-		page,
-		orderBy,
-		order,
-		startDate,
-		endDate
-	});
+	return getNodeLib().getTradesHistory(opts);
 };
 
 const sendEmail = (

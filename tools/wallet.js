@@ -188,12 +188,12 @@ const cancelUserWithdrawalByNetworkId = (networkId, withdrawalId) => {
 	return getNodeLib().cancelWithdrawal(networkId, withdrawalId);
 };
 
-const checkTransaction = (currency, transactionId, address, isTestnet = false) => {
+const checkTransaction = (currency, transactionId, address, opts = { isTestnet: null }) => {
 	if (!subscribedToCoin(currency)) {
 		return reject(new Error(INVALID_COIN(currency)));
 	}
 
-	return getNodeLib().checkTransaction(currency, transactionId, address, { isTestnet });
+	return getNodeLib().checkTransaction(currency, transactionId, address, opts);
 };
 
 const performWithdrawal = (userId, address, currency, amount, opts = {
@@ -379,7 +379,16 @@ const withdrawalBelowLimit = async (userId, currency, limit, amount = 0) => {
 	return;
 };
 
-const transferAssetByKitIds = (senderId, receiverId, currency, amount, description = 'Admin Transfer', email = true) => {
+const transferAssetByKitIds = (
+	senderId,
+	receiverId,
+	currency,
+	amount,
+	opts = {
+		description: null,
+		email: null
+	}
+) => {
 	if (!subscribedToCoin(currency)) {
 		return reject(new Error(INVALID_COIN(currency)));
 	}
@@ -398,12 +407,21 @@ const transferAssetByKitIds = (senderId, receiverId, currency, amount, descripti
 			} else if (!sender.network_id || !receiver.network_id) {
 				throw new Error('User not registered on network');
 			}
-			return getNodeLib().transferAsset(sender.network_id, receiver.network_id, currency, amount, { description, email });
+			return getNodeLib().transferAsset(sender.network_id, receiver.network_id, currency, amount, opts);
 		});
 };
 
-const transferAssetByNetworkIds = (senderId, receiverId, currency, amount, description = 'Admin Transfer', email = true) => {
-	return getNodeLib().transferAsset(senderId, receiverId, currency, amount, { description, email });
+const transferAssetByNetworkIds = (
+	senderId,
+	receiverId,
+	currency,
+	amount,
+	opts = {
+		description: null,
+		email: null
+	}
+) => {
+	return getNodeLib().transferAsset(senderId, receiverId, currency, amount, opts);
 };
 
 const getUserBalanceByKitId = (userKitId) => {
@@ -438,21 +456,23 @@ const getKitBalance = () => {
 const getUserTransactionsByKitId = (
 	type,
 	kitId,
-	currency,
-	status,
-	dismissed,
-	rejected,
-	processing,
-	waiting,
-	limit,
-	page,
-	orderBy,
-	order,
-	startDate,
-	endDate,
-	transactionId,
-	address,
-	format
+	opts = {
+		currency: null,
+		status: null,
+		dismissed: null,
+		rejected: null,
+		processing: null,
+		waiting: null,
+		limit: null,
+		page: null,
+		orderBy: null,
+		order: null,
+		startDate: null,
+		endDate: null,
+		transactionId: null,
+		address: null,
+		format: null
+	}
 ) => {
 	let promiseQuery;
 	if (kitId) {
@@ -464,22 +484,7 @@ const getUserTransactionsByKitId = (
 					} else if (!user.network_id) {
 						throw new Error(USER_NOT_REGISTERED_ON_NETWORK);
 					}
-					return getNodeLib().getUserDeposits(user.network_id, {
-						currency,
-						status,
-						dismissed,
-						rejected,
-						processing,
-						waiting,
-						limit,
-						page,
-						orderBy,
-						order,
-						startDate,
-						endDate,
-						transactionId,
-						address
-					});
+					return getNodeLib().getUserDeposits(user.network_id, opts);
 				});
 		} else if (type === 'withdrawal') {
 			promiseQuery = getUserByKitId(kitId, false)
@@ -489,64 +494,19 @@ const getUserTransactionsByKitId = (
 					} else if (!user.network_id) {
 						throw new Error(USER_NOT_REGISTERED_ON_NETWORK);
 					}
-					return getNodeLib().getUserWithdrawals(user.network_id, {
-						currency,
-						status,
-						dismissed,
-						rejected,
-						processing,
-						waiting,
-						limit,
-						page,
-						orderBy,
-						order,
-						startDate,
-						endDate,
-						transactionId,
-						address
-					});
+					return getNodeLib().getUserWithdrawals(user.network_id, opts);
 				});
 		}
 	} else {
 		if (type === 'deposit') {
-			promiseQuery = getNodeLib().getDeposits({
-				currency,
-				status,
-				dismissed,
-				rejected,
-				processing,
-				waiting,
-				limit,
-				page,
-				orderBy,
-				order,
-				startDate,
-				endDate,
-				transactionId,
-				address
-			});
+			promiseQuery = getNodeLib().getDeposits(opts);
 		} else if (type === 'withdrawal') {
-			promiseQuery = getNodeLib().getWithdrawals({
-				currency,
-				status,
-				dismissed,
-				rejected,
-				processing,
-				waiting,
-				limit,
-				page,
-				orderBy,
-				order,
-				startDate,
-				endDate,
-				transactionId,
-				address
-			});
+			promiseQuery = getNodeLib().getWithdrawals(opts);
 		}
 	}
 	return promiseQuery
 		.then((transactions) => {
-			if (format) {
+			if (opts.format) {
 				if (transactions.data.length === 0) {
 					throw new Error(NO_DATA_FOR_CSV);
 				}
@@ -560,148 +520,98 @@ const getUserTransactionsByKitId = (
 
 const getUserDepositsByKitId = (
 	kitId,
-	currency,
-	status,
-	dismissed,
-	rejected,
-	processing,
-	waiting,
-	limit,
-	page,
-	orderBy,
-	order,
-	startDate,
-	endDate,
-	transactionId,
-	address,
-	format
+	opts = {
+		currency: null,
+		status: null,
+		dismissed: null,
+		rejected: null,
+		processing: null,
+		waiting: null,
+		limit: null,
+		page: null,
+		orderBy: null,
+		order: null,
+		startDate: null,
+		endDate: null,
+		transactionId: null,
+		address: null,
+		format: null
+	}
 ) => {
 	return getUserTransactionsByKitId(
 		'deposit',
 		kitId,
-		currency,
-		status,
-		dismissed,
-		rejected,
-		processing,
-		waiting,
-		limit,
-		page,
-		orderBy,
-		order,
-		startDate,
-		endDate,
-		transactionId,
-		address,
-		format
+		opts
 	);
 };
 
 const getUserWithdrawalsByKitId = (
 	kitId,
-	currency,
-	status,
-	dismissed,
-	rejected,
-	processing,
-	waiting,
-	limit,
-	page,
-	orderBy,
-	order,
-	startDate,
-	endDate,
-	transactionId,
-	address,
-	format
+	opts = {
+		currency: null,
+		status: null,
+		dismissed: null,
+		rejected: null,
+		processing: null,
+		waiting: null,
+		limit: null,
+		page: null,
+		orderBy: null,
+		order: null,
+		startDate: null,
+		endDate: null,
+		transactionId: null,
+		address: null,
+		format: null
+	}
 ) => {
 	return getUserTransactionsByKitId(
 		'withdrawal',
 		kitId,
-		currency,
-		status,
-		dismissed,
-		rejected,
-		processing,
-		waiting,
-		limit,
-		page,
-		orderBy,
-		order,
-		startDate,
-		endDate,
-		transactionId,
-		address,
-		format
+		opts
 	);
 };
 
 const getExchangeDeposits = (
-	currency,
-	status,
-	dismissed,
-	rejected,
-	processing,
-	waiting,
-	limit,
-	page,
-	orderBy,
-	order,
-	startDate,
-	endDate,
-	transactionId,
-	address
+	opts = {
+		currency: null,
+		status: null,
+		dismissed: null,
+		rejected: null,
+		processing: null,
+		waiting: null,
+		limit: null,
+		page: null,
+		orderBy: null,
+		order: null,
+		startDate: null,
+		endDate: null,
+		transactionId: null,
+		address: null
+	}
 ) => {
-	return getNodeLib().getDeposits({
-		currency,
-		status,
-		dismissed,
-		rejected,
-		processing,
-		waiting,
-		limit,
-		page,
-		orderBy,
-		order,
-		startDate,
-		endDate,
-		transactionId,
-		address
-	});
+	return getNodeLib().getDeposits(opts);
 };
 
 const getExchangeWithdrawals = (
-	currency,
-	status,
-	dismissed,
-	rejected,
-	processing,
-	waiting,
-	limit,
-	page,
-	orderBy,
-	order,
-	startDate,
-	endDate,
-	transactionId,
-	address
+	opts = {
+		currency: null,
+		status: null,
+		dismissed: null,
+		rejected: null,
+		processing: null,
+		waiting: null,
+		limit: null,
+		page: null,
+		orderBy: null,
+		order: null,
+		startDate: null,
+		endDate: null,
+		transactionId: null,
+		address: null
+	}
 ) => {
-	return getNodeLib().getWithdrawals({
-		currency,
-		status,
-		dismissed,
-		rejected,
-		processing,
-		waiting,
-		limit,
-		page,
-		orderBy,
-		order,
-		startDate,
-		endDate,
-		transactionId,
-		address
-	});
+	return getNodeLib().getWithdrawals(opts);
 };
 
 const mintAssetByKitId = (
