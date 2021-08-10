@@ -132,6 +132,10 @@ const updateTier = (level, updateData) => {
 				newData.description = updateData.description;
 			}
 
+			if (updateData.requirements) {
+				newData.requirements = updateData.requirements;
+			}
+
 			return tier.update(newData, { returning: true });
 		})
 		.then((tier) => {
